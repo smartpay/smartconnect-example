@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<!--
+
+Example code on how to integrate with SmartConnect to pair to a payment device and send a transaction through.
+
+For a complete (and most up-to-date) API reference guide, please see:
+http://www.smartpayinvestor.com/smartconnect-api-integration-guide/
+
+-->
+
+<head>
+  <title>SmartConnect Example</title>
+
+  <!-- jquery will be used for convenience -->
+  <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+  <!-- All of the logic to communicate with SmartConnect endpoints -->
+  <script src="smartconnect.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="demo.css" />
+  <meta name="author" content="Miloš Ranđelović">
+
+</head>
+
+<body>
+
+  <header>
+    <h3>SmartConnect Example</h3>
+  </header>
+
+  <main>
+    <section id="pairing">
+      <h4>Step 1: Pair to a device</h4>
+
+      <label for="pairing-code">Pairing Code:</label><br />
+      <input type="text" name="pairing-code" id="pairing-code" placeholder="123456" />
+
+      <br /><br />
+
+      <button id="sendPairingRequest" onclick="doPairing()">Pair to Device</button>
+    </section>
+
+    <section id="transaction">
+      <h4>Step 2: Send a Transaction</h4>
+
+      <label for="amount">Amount in cents ($1.99 = 199):</label><br />
+      <input type="text" name="amount" id="amount" placeholder="199" />
+
+      <br /><br />
+
+      <label for="transaction-type">Transaction Type:</label><br />
+      <select name="transaction-type" id="transaction-type">
+          <option value="Card.Purchase">Card.Purchase</option>
+          <option value="Card.Refund">Card.Refund</option>
+          <option value="QR.Merchant.Purchase">QR.Merchant.Purchase</option>
+          <option value="QR.Refund">QR.Refund</option>
+      </select>
+
+      <br /><br />
+
+      <button id="sendTransaction" onclick="doTransaction()">Send Transaction</button>
+    </section>
+  </main>
+
+</body>
+
+<script>
+
+// Button functions
+
+function doPairing() {
+
+  let pairingCode = $("#pairing-code").val();
+
+  sendParingRequest(pairingCode)
+    .then(() => {
+      alert("Pairing complete! Your device should now show it is paired.");
+    })
+    .catch(errorMessage => {
+      alert("Error! Message: " + errorMessage);
+    });
+}
+
+function doTransaction() {
+
+  $("#sendTransaction").attr("disabled","disabled");
+
+  let amount = $("#amount").val();
+  let transactionType = $("#transaction-type").val();
+
+  let delayedShown = false;
+
+  let delayed = function() {
+
+    if (!delayedShown) {
+
+      // Don't show it more than once per request...
+      delayedShown = true;
+
+      // Might want to let the user know to check if everything is ok with the device
+      alert('Transaction delayed! Check if the device is powered on and online.');
+    }
+  };
+
+  createTransaction(amount, transactionType)
+    .then(pollingUrl => {
+      return pollForOutcome(pollingUrl, delayed);
+    })
+    .then((transactionOutcome, response) => {
+
+      if (transactionOutcome == TransactionOutcome.Accepted) {
+        alert("Transaction Accepted!");
+      } else if (transactionOutcome == TransactionOutcome.Declined) {
+        alert("Transaction Declined!");
+      } else if (transactionOutcome == TransactionOutcome.Cancelled) {
+        alert("Transaction Cancelled!");
+      } else if (transactionOutcome == TransactionOutcome.DeviceOffline) {
+        alert("Transaction Cancelled! Please check if the device is powered on and online.");
+      } else {
+        alert("Transaction Failed!");
+      }
+    })
+    .catch(errorMessage => {
+      alert("Error! Message: " + errorMessage);
+    })
+    .then(() => {
+      // Enable button back (always executed)
+      $("#sendTransaction").removeAttr("disabled");
+    });
+}
+</script>
+
+</html>

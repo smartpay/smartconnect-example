@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto+Slab');
+
+* {
+    font-family: 'Roboto Slab', serif;
+}
+
+main {
+    display: flex;
+}
+
+#pairing {
+    flex: 0 0 300px;
+    margin-right: 30px;
+}
+
+#transaction {
+    flex: 1;
+}
