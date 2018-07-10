@@ -29,7 +29,7 @@ const _posVendorName = "Test POS";
 // *TransactionResult* is the actual outcome of the transaction.
 // Possible values are: OK-ACCEPTED, OK-DECLINED, OK-UNAVAILABLE, OK-DELAYED, CANCELLED, FAILED, FAILED-INTERFACE
 //
-// *Result* indicates if the function was performed _successfuly_ (a Declined outcome is also a function performed successfuly).
+// *Result* indicates if the function was performed _successfuly_ (a Declined outcome is also a function performed successfully).
 // Possible values are: OK, CANCELLED, DELAYED-TRANSACTION, FAILED, FAILED-INTERFACE.
 //
 // For a full reference on the transaction outcome, see: http://www.smartpayinvestor.com/smartconnect-api-integration-guide/
