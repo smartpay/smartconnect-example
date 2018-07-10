@@ -245,13 +245,15 @@ function createTransaction(amount, transactionType) {
 
         // Generally, if it's an "expected" error (e.g. no device is paired), a 4xx will be returned
         // and a JSON description of the error provided (except for 404 Not Found). For example:
+        //
         // { "error": "This register is not paired to a device, please pair it first." } (400 Bad Request)
         // or
         // { "error": "device is busy" } (429 Too Many Requests)
         //
         // We will only fall back to errorThrown if this is not present (i.e. if a 5xx server error happens instead).
         // errorThrown will be a generic "Internal Server Error" etc. as per the status code.
-        let error = (jqXHR && jqXHR.responseText) ? JSON.parse(jqXHR.responseText).error : errorThrown;
+        let error = (jqXHR && jqXHR.responseText && JSON.parse(jqXHR.responseText).error)
+          ? JSON.parse(jqXHR.responseText).error : errorThrown;
 
         // For the purpose of this example, we will treat all errors "equally" and just surface the error
         // message back, however you may wish to at least differentiate between 4xx and 5xx errors in a
